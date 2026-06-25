@@ -1,8 +1,9 @@
 import { Request,Response } from "express";
 import { signupSchema } from "../validations/signup.schema";
-import {signinSchema} from "../validations/signin.schema"
+import {signinSchema} from "../validations/signin.schema";
+import {generateToken} from "../lib/jwt"
 import prisma from "../lib/prisma";
-import bcrypt from "bcryptjs"
+import bcrypt from "bcryptjs";
 
 
 //SignUp logic
@@ -67,6 +68,8 @@ export const signin = async(
             return res.status(400).json({message:"Invalid credentials",});
         };
 
+
+
         const  isPasswordValid = 
             await bcrypt.compare(
                 validatedData.password,
@@ -78,6 +81,11 @@ export const signin = async(
                 message:"Invalid credentials",
             });
         }
+
+
+        const token = generateToken(user.id);
+
+        res.cookie("token",token,{httpOnly:true,secure:false,sameSite:"lax",maxAge:7*24*60*60*1000,});
 
         return res.status(200).json({
             message:"Signin successful",
