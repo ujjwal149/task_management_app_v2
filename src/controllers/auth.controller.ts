@@ -1,5 +1,6 @@
 import { Request,Response } from "express";
 import { signupSchema } from "../validations/signup.schema";
+import {signinSchema} from "../validations/signin.schema"
 import prisma from "../lib/prisma";
 import bcrypt from "bcryptjs"
 
@@ -14,15 +15,18 @@ export const signup = async(req:Request,res:Response) =>{
                 email: validatedData.email,
             },
         });
+
         if(existingUsers){
             return res.status(400).json({
                 message:"User already exists",  
             });
         }
 
+        //Hashed password
         const hashedPassword = await bcrypt.hash(
             validatedData.password,10
         )
+
 
         const user = await prisma.user.create({
             data:{
@@ -44,3 +48,51 @@ export const signup = async(req:Request,res:Response) =>{
         return res.status(500).json({message:"Internal server error"});
     }
 };
+
+//SignIn
+
+export const signin = async(
+    req:Request,
+    res:Response
+) => {
+    try{
+        const validatedData = signinSchema.parse(req.body)
+
+        const user = await prisma.user.findUnique({
+            where:{
+                email:validatedData.email,
+            }
+        });
+        if(!user){
+            return res.status(400).json({message:"Invalid credentials",});
+        };
+
+        const  isPasswordValid = 
+            await bcrypt.compare(
+                validatedData.password,
+                user.password
+            );
+        
+        if(!isPasswordValid) {
+            return res.status(400).json({
+                message:"Invalid credentials",
+            });
+        }
+
+        return res.status(200).json({
+            message:"Signin successful",
+            user:{
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+            },
+        });
+    }catch(error){
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Internal server error."
+        })
+    }
+}
