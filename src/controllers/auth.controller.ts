@@ -111,6 +111,7 @@ export const signin = async(
     }
 }
 
+//User based login
 export const me = async(req:Request,res:Response) => {
     try{
         const user = await prisma.user.findUnique({
@@ -139,4 +140,14 @@ export const me = async(req:Request,res:Response) => {
 
         return res.status(500).json({message:"Internal Server error",});
     }
+};
+
+//Admin 
+export const adminOnly = async (
+    req:Request,
+    res:Response
+) => {
+    return res.status(200).json({
+        message:"Welcome Admin!"
+    });
 };
