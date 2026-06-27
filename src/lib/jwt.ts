@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { xid } from "zod";
 
 export const generateToken = (userId: string) => {
     return jwt.sign(
@@ -8,4 +9,13 @@ export const generateToken = (userId: string) => {
             expiresIn: "7d"
         }
     );
+};
+
+export const verifyToken = (token:string) => {
+    return jwt.verify(
+        token,
+        process.env.JWT_SECRET!
+    )as{
+        userId:string;
+    };
 };
