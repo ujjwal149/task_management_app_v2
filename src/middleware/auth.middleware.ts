@@ -14,10 +14,12 @@ export const authMiddleware = (
         }
         
         const decoded = verifyToken(token);
-        console.log(decoded);
+        
+        req.user = decoded;
 
         next();
     }catch(error){
         return res.status(401).json({message:"Invalid token"});
     }
 };
+
