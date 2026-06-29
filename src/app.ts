@@ -1,5 +1,6 @@
 import express from "express";
 import authRoutes from "./routes/auth.routes";
+import taskRoutes from "./routes/task.routes"
 import cookieParser from "cookie-parser";
 
 
@@ -14,6 +15,7 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use("/api/auth",authRoutes)
+app.use("/api/auth",authRoutes);
+app.use("/api/tasks",taskRoutes);
 
 export default app;
