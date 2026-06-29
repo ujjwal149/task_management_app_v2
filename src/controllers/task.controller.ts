@@ -35,3 +35,25 @@ export const createTask = async (
 
     }
 }
+
+export const getMyTasks = async(req:Request,res:Response) =>{
+    try{
+        const userId = req.user!.userId;
+        const tasks = await prisma.task.findMany({
+            where:{
+                userId,
+            },
+
+        });
+        return res.status(200).json({
+            message:"Task fetch sucessfully!",
+            tasks,
+        })
+    }catch(error){
+        console.error(error);
+
+        return res.status(500).json({
+            message:"Internal server error."
+        })
+    }
+}
